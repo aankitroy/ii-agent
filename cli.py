@@ -93,9 +93,8 @@ async def async_main():
 
     # Initialize LLM client
     client = get_client(
-        "anthropic-direct",
-        model_name=DEFAULT_MODEL,
-        use_caching=False,
+        "gemini-direct",
+        model_name="gemini-2.5-pro-preview-05-06",
         project_id=args.project_id,
         region=args.region,
     )
@@ -154,9 +153,9 @@ async def async_main():
     # Create background task for message processing
     message_task = agent.start_message_processing()
 
-    loop = asyncio.get_running_loop()
     # Main interaction loop
     try:
+        loop = asyncio.get_running_loop()
         while True:
             # Use async input
             user_input = await loop.run_in_executor(None, lambda: input("User input: "))
@@ -178,9 +177,6 @@ async def async_main():
                     lambda: agent.run_agent(user_input, resume=True),
                 )
                 logger_for_agent_logs.info(f"Agent: {result}")
-            except (KeyboardInterrupt, asyncio.CancelledError):
-                agent.cancel()
-                logger_for_agent_logs.info("Agent cancelled")
             except Exception as e:
                 logger_for_agent_logs.info(f"Error: {str(e)}")
                 logger_for_agent_logs.debug("Full error:", exc_info=True)
